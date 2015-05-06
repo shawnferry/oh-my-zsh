@@ -56,13 +56,7 @@ else
   _plugin__ssh_env="$HOME/.ssh/environment-$HOST"
 fi
 
-# test if agent-forwarding is enabled
-zstyle -b :omz:plugins:ssh-agent agent-forwarding _plugin__forwarding
-if [[ ${_plugin__forwarding} == "yes" && -n "$SSH_AUTH_SOCK" ]]; then
-  # Add a nifty symlink for screen/tmux if agent forwarding
-  [[ -L $SSH_AUTH_SOCK ]] || ln -sf "$SSH_AUTH_SOCK" /tmp/ssh-agent-$USER-screen
-
-elif [ -f "${_plugin__ssh_env}" ]; then
+if [ -f "${_plugin__ssh_env}" ]; then
   # Source SSH settings, if applicable
   . ${_plugin__ssh_env} > /dev/null
   ps x | grep ${SSH_AGENT_PID} | grep ssh-agent > /dev/null || {
@@ -70,6 +64,13 @@ elif [ -f "${_plugin__ssh_env}" ]; then
   }
 else
   _plugin__start_agent;
+fi
+
+# test if agent-forwarding is enabled
+zstyle -b :omz:plugins:ssh-agent agent-forwarding _plugin__forwarding
+if [[ ${_plugin__forwarding} == "yes" && -n "$SSH_AUTH_SOCK" ]]; then
+  # Add a nifty symlink for screen/tmux if agent forwarding
+  [[ -L $SSH_AUTH_SOCK ]] || ln -sf "$SSH_AUTH_SOCK" /tmp/ssh-agent-$USER-screen
 fi
 
 # tidy up after ourselves
